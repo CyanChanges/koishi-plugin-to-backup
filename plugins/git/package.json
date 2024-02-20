@@ -1,0 +1,27 @@
+{
+  "name": "koishi-plugin-to-backup2git",
+  "description": "Git Backup Provider",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "koishi": {
+    "preview": true,
+    "description": {
+      "zh": "备份你的 Koishi! - 备份到 git",
+      "en": "Backup your Koishi! - To Git repository"
+    }
+  },
+  "peerDependencies": {
+    "koishi": "^4.17.0-beta.4"
+  }
+}

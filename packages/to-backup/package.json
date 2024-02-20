@@ -1,0 +1,53 @@
+{
+  "name": "koishi-plugin-to-backup",
+  "description": "Backup Provider for Koishi",
+  "version": "0.1.2",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist",
+    "src"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "homepage": "https://github.com/CyanChanges/koishi-plugin-to-backup",
+  "repository": {
+    "directory": "packages/to-backup",
+    "url": "git+https://github.com/CyanChanges/koishi-plugin-to-backup.git",
+    "type": "git"
+  },
+  "koishi": {
+    "service": {
+      "optional": [
+        "cron"
+      ]
+    },
+    "preview": true,
+    "description": {
+      "zh": "备份你的 Koishi! - 提供 API",
+      "en": "Backup your Koishi! - API"
+    }
+  },
+  "devDependencies": {
+    "@koishijs/client": "^5.25.8",
+    "@types/adm-zip": "^0.5.5"
+  },
+  "peerDependencies": {
+    "@koishijs/console": "^5.25.8",
+    "koishi": "^4.12.9",
+    "koishi-plugin-cron": "^3.1.0"
+  },
+  "peerDependenciesMeta": {
+    "koishi-plugin-cron": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10"
+  }
+}

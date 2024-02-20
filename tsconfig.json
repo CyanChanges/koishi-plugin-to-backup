@@ -4,12 +4,10 @@
     "baseUrl": ".",
     "paths": {
       "koishi-plugin-to-backup2*": [
-        "plugins/*/src",
-        "packages/*/src"
+        "plugins/*/src"
       ],
       "koishi-plugin-*": [
-        "packages/*/src",
-        "plugins/*/src"
+        "packages/*/src"
       ]
     }
   }

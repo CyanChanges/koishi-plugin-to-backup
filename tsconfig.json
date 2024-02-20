@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "koishi-plugin-to-backup2*": [
+        "plugins/*/src",
+        "packages/*/src"
+      ],
+      "koishi-plugin-*": [
+        "packages/*/src",
+        "plugins/*/src"
+      ]
+    }
+  }
+}

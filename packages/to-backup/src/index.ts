@@ -5,6 +5,8 @@ import pMap from 'p-map'
 import AdmZip from 'adm-zip'
 import { BackupService } from "./service";
 import { Zip } from "./zip";
+import { promisify } from "node:util";
+import { BackupNotifier } from "./notifier";
 
 export * from './service'
 export * from './zip'
@@ -27,21 +29,35 @@ type NestedServices = {
 }
 
 export class Backup extends Service {
-  constructor(protected ctx: Context, protected options: Backup.Config) {
-    super(ctx, 'backup', true);
+  backupTask?: Promise<boolean[]>
+  curTasks?: [string, Promise<boolean>][] = []
 
+  get isInBackup(): boolean {
+    return Boolean(this.backupTask)
   }
 
-  async backup() {
-    const AppDir = this.ctx.baseDir
-    if (await this.ctx.serial("backup/before-backup", AppDir))
-      return
+  constructor(protected ctx: Context, protected options: Backup.Config) {
+    super(ctx, 'backup');
+  }
 
-    const zip = new AdmZip() as Zip
-    await this.addFolder(zip, AppDir, AppDir)
+  backup() {
+    return this.backupTask ||= new Promise(async (resolve, reject) => {
+      const AppDir = this.ctx.baseDir
+      if (await this.ctx.serial("backup/before-backup", AppDir))
+        return
 
-    return await pMap(this.getBackupServices(), service => {
-      return service.backup(zip)
+      const zip = new AdmZip() as Zip
+      await this.addFolder(zip, AppDir, AppDir)
+
+      pMap(this.getBackupServices(), service => {
+        const task = (async zip => await service.backup(zip))(zip) as Promise<boolean>
+        const id = this.curTasks.push([service.name, task]) - 1
+        task.then(() => delete this.curTasks[id])
+        return task
+      }).then(r => {
+        this.backupTask = null
+        resolve(r)
+      }).catch(reject)
     })
   }
 
@@ -50,8 +66,9 @@ export class Backup extends Service {
       .filter(name => name.startsWith('backup.'))
       .map(name => {
         const key = name.slice(7)
-        const service = this.ctx.root.get(key)! as BackupService
+        const service = this.ctx.root.get(name)! as BackupService
         if (!service.ctx.scope.isActive) return
+        if (!(service instanceof BackupService)) return
         return service
       })
       .filter(Boolean)
@@ -64,9 +81,11 @@ export class Backup extends Service {
       const entry = relative(root, path)
       if (await this.ctx.serial("backup/add", entry, path))
         return
-      const stats = await lstat(path)
-      if (stats.isFile()) return zip.addFile(entry, await readFile(path))
-      return await this.addFolder(zip, root, path)
+      try {
+        const stats = await lstat(path)
+        if (stats.isFile()) return zip.addFile(entry, await readFile(path))
+        return await this.addFolder(zip, root, path)
+      } catch {}
     }))
   }
 }
@@ -77,25 +96,41 @@ export namespace Backup {
     serialAdd: boolean
   }
 
-  export const Config: z<Dict> = z.intersect([{
-    allowBackup: z.boolean()
-      .default(true)
-      .description("允许备份"),
-    serialAdd: z.boolean()
-      .default(true)
-      .description("允许(包括其他插件)控制哪些文件被添加仅备份中")
-  }, z.union([
+  export const Config: z<Dict> = z.intersect([
     z.object({
-      serialAdd: z.const(true).required(),
-      ignores: z.array(String)
-        .role('table')
-        .default(["**/node_modules", '**/.*', 'cache'])
-    }),
-    z.object({
-      serialAdd: z.const(false).required()
-    })
-  ])])
+      allowBackup: z.boolean()
+        .default(true)
+        .description("允许备份"),
+      serialAdd: z.boolean()
+        .default(true)
+        .description("允许(包括其他插件)控制哪些文件被添加仅备份中")
+    }).description("基础配置"),
+    z.union([
+      z.object({
+        serialAdd: z.const(false).required(),
+      }),
+      z.object({
+        ignores: z.array(String)
+          .role('table')
+          .default(["**/node_modules", '**/.*', 'cache'])
+      }).description("文件过滤")
+    ])])
 
   export interface Services {
   }
+}
+
+export const Config = z.object({
+  backup: Backup.Config,
+  notifier: BackupNotifier.Config,
+})
+
+export interface Config {
+  backup: Backup.Config,
+  notifier: BackupNotifier.Config
+}
+
+export function apply(ctx: Context, config: Config) {
+  ctx.plugin(Backup, config)
+  ctx.plugin(BackupNotifier, config)
 }

@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-to-backup",
   "description": "Backup Provider for Koishi",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -24,7 +24,8 @@
   "koishi": {
     "service": {
       "optional": [
-        "cron"
+        "cron",
+        "notifier"
       ]
     },
     "preview": true,
@@ -34,15 +35,21 @@
     }
   },
   "devDependencies": {
-    "@koishijs/client": "^5.25.8",
-    "@types/adm-zip": "^0.5.5"
+    "@koishijs/client": "^5.24.4",
+    "@koishijs/plugin-notifier": "^1.2.0",
+    "@types/adm-zip": "^0.5.5",
+    "koishi-plugin-cron": "^3.1.0"
   },
   "peerDependencies": {
-    "@koishijs/console": "^5.25.8",
-    "koishi": "^4.12.9",
+    "@koishijs/console": "^5.24.4",
+    "@koishijs/plugin-notifier": "^1.2.0",
+    "koishi": "^4.15.6",
     "koishi-plugin-cron": "^3.1.0"
   },
   "peerDependenciesMeta": {
+    "@koishijs/plugin-notifier": {
+      "optional": true
+    },
     "koishi-plugin-cron": {
       "optional": true
     }

@@ -14,7 +14,7 @@ declare module 'koishi-plugin-to-backup' {
 }
 
 export class AssetsBackupProvider extends BackupService {
-  static inject = [...BackupService.inject, 'assets']
+  static inject = [...BackupService.inject, 'assets', 'installer']
 
   constructor(ctx: Context, private options: AssetsBackupProvider.Config) {
     super(ctx, 'assets', {});
@@ -49,3 +49,4 @@ export namespace AssetsBackupProvider {
   })
 }
 
+export default AssetsBackupProvider

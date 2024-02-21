@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-backup",
   "description": "Backup Provider for Koishi",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -30,6 +30,6 @@
     "koishi": "^4.17.0-beta.4"
   },
   "dependencies": {
-    "koishi-plugin-to-backup": "^0.1.2"
+    "koishi-plugin-to-backup": "^0.1.3"
   }
 }
